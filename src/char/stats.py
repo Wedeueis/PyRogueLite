@@ -1,9 +1,46 @@
 from enum import IntEnum
-import numpy as np
+
+
+class StatModType(IntEnum):
+    FLAT = 100
+    PERCENT_ADD = 200
+    PERCENT_MULT = 300
+
+
+class StatsModifier:
+    def __init__(
+        self, value: int, type: StatModType, order: int = None, source: object = None
+    ):
+        self._value = value
+        self._type = type
+        if order == None:
+            self._order = int(type)
+        else:
+            self._order = order
+        self._source = source
+
+    def __repr__(self) -> str:
+        return f"Modifier value: {self._value} type: {self._type}  order: {self._order}"
+
+    @property
+    def value(self) -> int:
+        return self._value
+
+    @property
+    def type(self) -> StatModType:
+        return self._type
+
+    @property
+    def order(self) -> int:
+        return self._order
+
+    @property
+    def source(self) -> object:
+        return self._source
 
 
 class Stats:
-    def __init__(self, value=0):
+    def __init__(self, value: int = 0):
         self._base_value = value
         self._value = self._base_value
         self._modifiers = []
@@ -11,34 +48,33 @@ class Stats:
         self._is_dirty = True
 
     @property
-    def value(self):
+    def value(self) -> int:
         if self._is_dirty:
             self._value = self.calculate_final_value()
-            return self._value
-        else:
-            return self._value
+        return round(self._value)
 
-    def add_modifier(self, mod):
+    def add_modifier(self, mod: StatsModifier):
         self._is_dirty = True
         self._modifiers.append(mod)
         self._modifiers.sort(key=lambda x: x.order)
 
-    def remove_modifier(self, mod):
+    def remove_modifier(self, mod: StatsModifier):
         if mod in self._modifiers:
             self._is_dirty = True
             self._modifiers.remove(mod)
             return True
         return False
 
-    def remove_all_modifiers_from_source(self, source):
+    def remove_all_modifiers_from_source(self, source: object):
         did_remove = False
-        for mod in self._modifiers:
-            if mod.source == source:
-                self.remove_modifier(mod)
-                did_remove = True
+        for mod in self._modifiers[::-1]:
+            if mod.source is source:
+                did_remove = self.remove_modifier(mod)
+                if not did_remove:
+                    raise Exception("Failed to remove modifier")
         return did_remove
 
-    def calculate_final_value(self):
+    def calculate_final_value(self) -> float:
         final_value = self._base_value
         sum_percent_add = 0
 
@@ -59,36 +95,3 @@ class Stats:
         self._is_dirty = False
 
         return final_value
-
-
-class StatModType(IntEnum):
-    FLAT = 100
-    PERCENT_ADD = 200
-    PERCENT_MULT = 300
-
-
-class StatsModifier:
-    def __init__(self, value, type, order=None, source=None):
-        self._value = value
-        self._type = type
-        if order == None:
-            self._order = int(type)
-        else:
-            self._order = order
-        self._source = source
-
-    @property
-    def value(self):
-        return self._value
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def order(self):
-        return self._order
-
-    @property
-    def source(self):
-        return self._source
