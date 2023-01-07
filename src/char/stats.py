@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Stats:
-    def __init__(self, value):
+    def __init__(self, value=0):
         self._base_value = value
         self._value = self._base_value
         self._modifiers = []
@@ -50,9 +50,9 @@ class Stats:
             elif mod.type == StatModType.PERCENT_ADD:
                 sum_percent_add += mod.value
 
-            if (mod.type != StatModType.PERCENT_ADD) and (sum_percent_add != 0):
-                final_value *= 1 + sum_percent_add
-                sum_percent_add = 0
+        if sum_percent_add != 0:
+            final_value *= 1 + sum_percent_add
+            sum_percent_add = 0
 
         final_value = round(final_value, 4)
 
