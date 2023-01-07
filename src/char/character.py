@@ -1,4 +1,4 @@
-from Stats import Stats
+from src.char.stats import Stats
 
 
 class Character:
