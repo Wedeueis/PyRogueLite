@@ -9,7 +9,11 @@ class StatModType(IntEnum):
 
 class StatsModifier:
     def __init__(
-        self, value: int, type: StatModType, order: int = None, source: object = None
+        self,
+        value: int,
+        type: StatModType,
+        order: int = None,
+        source: object = None,
     ):
         self._value = value
         self._type = type
@@ -40,18 +44,36 @@ class StatsModifier:
 
 
 class Stats:
-    def __init__(self, value: int = 0):
+    def __init__(self, value: int = 0, name: str = None):
         self._base_value = value
+        self._last_base_value = value
+        self._name = name
         self._value = self._base_value
         self._modifiers = []
 
         self._is_dirty = True
 
+    def __repr__(self) -> str:
+        return f"{self.name} stats - base value: {self._base_value} current value: {self.value}\n"
+
     @property
     def value(self) -> int:
-        if self._is_dirty:
+        if self._is_dirty or (self._base_value != self._last_base_value):
             self._value = self.calculate_final_value()
+            self._last_base_value = self._base_value
         return round(self._value)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def base_value(self) -> int:
+        return self._base_value
+
+    @base_value.setter
+    def base_value(self, value):
+        self._base_value = value
 
     def add_modifier(self, mod: StatsModifier):
         self._is_dirty = True

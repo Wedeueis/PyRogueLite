@@ -157,6 +157,15 @@ class TestStats(object):
 
         assert actual == expected, message
 
+    def test_modifier_with_order_param(self):
+        mod = StatsModifier(5, StatModType.FLAT, order=500)
+
+        expected = 500
+        actual = mod.order
+        message = f"Wrong order value, expected: {expected}, actual: {actual}"
+
+        assert actual == expected, message
+
     def test_one_modifier_source(self):
         source = list()
         mod = StatsModifier(5, StatModType.FLAT, source=source)
